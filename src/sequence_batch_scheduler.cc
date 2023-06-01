@@ -133,8 +133,7 @@ SequenceBatchScheduler::Create(
 }
 
 Status
-SequenceBatchScheduler::Update(
-    std::unique_ptr<std::lock_guard<std::mutex>>* lock)
+SequenceBatchScheduler::Update()
 {
   std::unique_lock<std::mutex> lk(mu_);
 
@@ -162,13 +161,10 @@ SequenceBatchScheduler::Update(
   queue_request_cnts_.resize(instance_count, 0);
   CreateBatchers();
 
-  // The update is complete, 'Enqueue()' may resume after the mutex is released.
+  // The update is completed.
   updating_ = false;
   update_complete_cv_.notify_all();
-  if (lock != nullptr) {
-    lock->reset(
-        new std::lock_guard<std::mutex>(*lk.release(), std::adopt_lock));
-  }
+
   return Status::Success;
 }
 
