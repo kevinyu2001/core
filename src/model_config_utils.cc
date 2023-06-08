@@ -1310,8 +1310,7 @@ ValidateModelConfig(
 
   // Ensure both platform and backend are referring to known backend,
   // or both referring to unknown backend for user-provided backend.
-  if (GetBackendTypeFromPlatform(config.platform()) !=
-      GetBackendType(config.backend())) {
+  if (!ValidateBackendAndPlatformFields(config)) {
     return Status(
         Status::Code::INVALID_ARG,
         "unexpected 'platform' and 'backend' pair, got:" + config.platform() +
@@ -1893,7 +1892,7 @@ FixUInt(
 
   uint64_t d;
   try {
-    d = std::strtoull(str.c_str(),nullptr,10);
+    d = std::strtoull(str.c_str(), nullptr, 10);
   }
   catch (...) {
     return Status(
@@ -2071,7 +2070,8 @@ ModelConfigToJson(
   // dynamic_batching::priority_queue_policy::value::default_timeout_microseconds
   // dynamic_batching::priority_levels
   // dynamic_batching::default_priority_level
-  // dynamic_batching::priority_queue_policy::key is left as JSON only allows strings for keys
+  // dynamic_batching::priority_queue_policy::key is left as JSON only allows
+  // strings for keys
   {
     triton::common::TritonJson::Value db;
     if (config_json.Find("dynamic_batching", &db)) {
@@ -2247,7 +2247,32 @@ GetBackendType(const std::string& backend_name)
     return BackendType::BACKEND_TYPE_PYTORCH;
   }
 
+  if (backend_name == kPythonBackend) {
+    return BackendType::BACKEND_TYPE_PYTHON;
+  }
+
   return BackendType::BACKEND_TYPE_UNKNOWN;
+}
+
+bool
+ValidateBackendAndPlatformFields(const inference::ModelConfig& config)
+{
+  bool valid_pair = false;
+
+  auto backend_type = GetBackendType(config.backend());
+  if (backend_type == BackendType::BACKEND_TYPE_PYTHON) {
+    // There is no special platform field value for python backend.
+    // However, the platform field can be used to hint the python
+    // backend to use one of the plugin models. The strict checking
+    // is not enforced to retain the backwards-compatibility where
+    // python backend could support any unrecognized platforms values.
+    valid_pair = true;
+  } else {
+    valid_pair =
+        (backend_type != GetBackendTypeFromPlatform(config.platform()));
+  }
+
+  return valid_pair;
 }
 
 TRITONSERVER_DataType

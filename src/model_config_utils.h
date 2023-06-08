@@ -39,7 +39,8 @@ enum BackendType {
   BACKEND_TYPE_TENSORRT = 1,
   BACKEND_TYPE_TENSORFLOW = 2,
   BACKEND_TYPE_ONNXRUNTIME = 3,
-  BACKEND_TYPE_PYTORCH = 4
+  BACKEND_TYPE_PYTORCH = 4,
+  BACKEND_TYPE_PYTHON = 5
 };
 
 // Get version of a model from the path containing the model
@@ -268,6 +269,12 @@ BackendType GetBackendTypeFromPlatform(const std::string& platform_name);
 /// \return The BackendType or BackendType::UNKNOWN if the platform string
 /// is not recognized.
 BackendType GetBackendType(const std::string& backend_name);
+
+/// Validates whether or not the backend and platform fields match
+/// \param config The model config.
+/// \return True if the platform and backend field values are correctly
+/// set.
+bool ValidateBackendAndPlatformFields(const inference::ModelConfig& config);
 
 /// Get the Triton server data type corresponding to a data type.
 /// \param dtype The data type.
