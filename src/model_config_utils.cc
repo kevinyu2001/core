@@ -2269,7 +2269,7 @@ ValidateBackendAndPlatformFields(const inference::ModelConfig& config)
     valid_pair = true;
   } else {
     valid_pair =
-        (backend_type != GetBackendTypeFromPlatform(config.platform()));
+        (backend_type == GetBackendTypeFromPlatform(config.platform()));
   }
 
   return valid_pair;
