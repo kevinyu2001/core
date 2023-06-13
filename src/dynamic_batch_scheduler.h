@@ -84,9 +84,6 @@ class DynamicBatchScheduler : public Scheduler {
     return queue_.Size();
   }
 
-  // \see Scheduler::Update()
-  Status Update() override;
-
   // \see Scheduler::Stop()
   void Stop() override { stop_ = true; }
 
