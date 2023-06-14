@@ -27,6 +27,7 @@
 #include "rate_limiter.h"
 
 #include <limits>
+
 #include "triton/common/logging.h"
 
 namespace triton { namespace core {
@@ -733,13 +734,15 @@ RateLimiter::ModelInstanceContext::ScaledPriority()
 }
 
 void
-RateLimiter::ModelInstanceContext::RequestRemoval() {
+RateLimiter::ModelInstanceContext::RequestRemoval()
+{
   std::unique_lock<std::mutex> lk(state_mtx_);
   removal_in_progress_ = true;
 }
 
 bool
-RateLimiter::ModelInstanceContext::IsRemovalInProgress() {
+RateLimiter::ModelInstanceContext::IsRemovalInProgress()
+{
   std::unique_lock<std::mutex> lk(state_mtx_);
   return removal_in_progress_;
 }
@@ -830,9 +833,9 @@ RateLimiter::ResourceManager::UpdateResourceLimits()
     std::string resource_map_str{"\nMax Resource Map===>\n"};
     for (const auto& ditr : max_resources_) {
       if (!ditr.second.empty()) {
-        std::string device_str{(ditr.first == GLOBAL_RESOURCE_KEY)
-                                   ? "GLOBAL"
-                                   : std::to_string(ditr.first)};
+        std::string device_str{
+            (ditr.first == GLOBAL_RESOURCE_KEY) ? "GLOBAL"
+                                                : std::to_string(ditr.first)};
         resource_map_str += "\tDevice: " + device_str + "\n";
         for (const auto& ritr : ditr.second) {
           resource_map_str += "\t\tResource: " + ritr.first +
